@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Tuple
 
 import pandas as pd
 
@@ -64,6 +65,29 @@ def parse_args() -> argparse.Namespace:
         help="Path to the cleaned CSV file in data/processed/.",
     )
     return parser.parse_args()
+
+
+def load_asteroid_close_approaches(raw_dir: Path) -> pd.DataFrame:
+    """Load asteroid close approaches data from raw directory."""
+    file_path = raw_dir / "asteroid_close_approaches_2015_2035.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path)
+
+
+def load_near_earth_asteroids(raw_dir: Path) -> pd.DataFrame:
+    """Load near-earth asteroids data with mixed-type handling."""
+    file_path = raw_dir / "near_earth_asteroids_2025.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path, low_memory=False, dtype={"pdes": "string"})
+
+
+def extract_all(raw_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Load both raw datasets. Returns (close_approaches, near_earth_asteroids)."""
+    close = load_asteroid_close_approaches(raw_dir)
+    nea = load_near_earth_asteroids(raw_dir)
+    return close, nea
 
 
 def main() -> None:
