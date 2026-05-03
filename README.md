@@ -1,35 +1,7 @@
-# NST DVA Capstone 2 - Project Repository
+# NASA Planetary Defense — Asteroid Risk & Close Approach Analysis
 
-> **Newton School of Technology | Data Visualization & Analytics**
-> A 2-week industry simulation capstone using Python, GitHub, and Tableau to convert raw data into actionable business intelligence.
-
----
-
-## Before You Start
-
-1. Rename the repository using the format `SectionName_TeamID_ProjectName`.
-2. Fill in the project details and team table below.
-3. Add the raw dataset to `data/raw/`.
-4. Complete the notebooks in order from `01` to `05`.
-5. Publish the final dashboard and add the public link in `tableau/dashboard_links.md`.
-6. Export the final report and presentation as PDFs into `reports/`.
-
-### Quick Start
-
-If you are working locally:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-jupyter notebook
-```
-
-If you are working in Google Colab:
-
-- Upload or sync the notebooks from `notebooks/`
-- Keep the final `.ipynb` files committed to GitHub
-- Export any cleaned datasets into `data/processed/`
+> **Newton School of Technology | DVA Capstone 2**
+> Python + GitHub + Tableau · Team SectionC_G-09
 
 ---
 
@@ -37,39 +9,34 @@ If you are working in Google Colab:
 
 | Field | Details |
 |---|---|
-| **Project Title** | _To be filled by team_ |
-| **Sector** | _e.g. Retail, Finance, Healthcare, EdTech_ |
-| **Team ID** | _e.g. DVA-B1-T3_ |
-| **Section** | _To be filled by team_ |
-| **Faculty Mentor** | _To be filled by team_ |
+| **Project Title** | NASA Planetary Defense — Asteroid Risk & Close Approach Analysis |
+| **Sector** | Space & Planetary Science / Public Safety |
+| **Team ID** | SectionC_G-09 |
+| **Section** | Section C |
+| **Faculty Mentor** | _[Faculty Mentor Name]_ |
 | **Institute** | Newton School of Technology |
-| **Submission Date** | _To be filled by team_ |
+| **Submission Date** | _[Submission Date]_ |
 
 ### Team Members
 
 | Role | Name | GitHub Username |
 |---|---|---|
-| Project Lead | _Name_ | `github-handle` |
-| Data Lead | _Name_ | `github-handle` |
-| ETL Lead | _Name_ | `github-handle` |
-| Analysis Lead | _Name_ | `github-handle` |
-| Visualization Lead | _Name_ | `github-handle` |
-| Strategy Lead | _Name_ | `github-handle` |
-| PPT and Quality Lead | _Name_ | `github-handle` |
+| Project Lead / ETL Lead | Aditya Rana | `@[github-handle]` |
+| Data Lead / EDA | Aanya Mehrotra | `@[github-handle]` |
+| Visualization Lead | Pihu Jaitly | `@[github-handle]` |
+| Statistical Analysis / Report | Harshil | `@[github-handle]` |
 
 ---
 
 ## Business Problem
 
-_Describe the sector context, the decision-maker this project serves, and the core business challenge being addressed. Keep this to 3-5 sentences written in plain language, as if addressing a senior stakeholder._
+NASA's planetary defense mission requires continuous monitoring of Near-Earth Asteroids (NEAs) to identify objects that pose a credible impact risk. With over 41,000 known NEAs and thousands of recorded close approach events, analysts need a data-driven system to prioritize monitoring and communicate risk to stakeholders.
 
 **Core Business Question**
-
-> _State the single main question your Tableau dashboard and Python analysis will answer._
+> Which asteroids present the highest near-term risk, and how do velocity, MOID, and orbital characteristics predict hazard severity?
 
 **Decision Supported**
-
-> _What action or decision will this analysis enable the stakeholder to take?_
+> Enables planetary defense teams to prioritize observation toward Critical/High-tier PHAs, forecast future close approaches, and communicate risk tiers through an interactive dashboard.
 
 ---
 
@@ -77,35 +44,67 @@ _Describe the sector context, the decision-maker this project serves, and the co
 
 | Attribute | Details |
 |---|---|
-| **Source Name** | _e.g. World Bank, data.gov.in, Kaggle (raw only)_ |
-| **Direct Access Link** | _Paste the direct download or access URL_ |
-| **Row Count** | _Must be greater than 5,000_ |
-| **Column Count** | _Must be greater than 8 meaningful columns_ |
-| **Time Period Covered** | _e.g. Jan 2019 to Dec 2023_ |
-| **Format** | _e.g. CSV, JSON, Excel_ |
+| **Source** | NASA/JPL SBDB + CNEOS Close Approach Data |
+| **Links** | https://ssd.jpl.nasa.gov/tools/sbdb_query.html · https://cneos.jpl.nasa.gov/ca/ |
+| **NEA Catalogue** | 41,281 rows × 29 cols (raw) → 41,150 × 33 cols (cleaned) |
+| **Close Approaches** | 27,430 rows × 13 cols (raw) → 27,430 × 19 cols (cleaned) |
+| **Time Period** | Observations 1893–2025 (NEA); Approaches 2015–2035 |
+| **Format** | CSV |
 
-**Key Columns Used**
+**Key Columns**
 
-| Column Name | Description | Role in Analysis |
+| Column | Description | Role |
 |---|---|---|
-| _column_1_ | _What it means_ | _Used for KPI / filter / segmentation_ |
-| _column_2_ | _What it means_ | _Used for KPI / filter / segmentation_ |
-| _column_3_ | _What it means_ | _Used for KPI / filter / segmentation_ |
-| _column_4_ | _What it means_ | _Used for KPI / filter / segmentation_ |
+| `is_potentially_hazardous` | PHA classification (MOID ≤ 0.05 AU & H ≤ 22) | Primary hazard filter |
+| `min_orbit_intersection_dist_au` | Minimum orbital distance to Earth's orbit | Key hazard KPI |
+| `absolute_magnitude_h` | Size proxy — lower = larger | Segmentation |
+| `risk_tier` | Derived: Critical / High / Moderate / Low | Dashboard traffic light |
+| `close_approach_date` | Date/time of close approach | Timeline axis |
+| `velocity_km_s` | Approach speed in km/s | Speed KPI |
+| `distance_lunar_distances` | Approach distance in lunar distances | Distance KPI |
+| `orbit_class_label` | Human-readable orbit class name | Filter |
 
-For full column definitions, see [`docs/data_dictionary.md`](docs/data_dictionary.md).
+Full definitions → [`docs/data_dictionary.md`](docs/data_dictionary.md)
 
 ---
 
 ## KPI Framework
 
-| KPI | Definition | Formula / Computation |
-|---|---|---|
-| _e.g. Monthly Revenue Growth %_ | _What business outcome this tracks_ | _Show the exact formula or notebook reference_ |
-| _e.g. Customer Churn Rate_ | _What business outcome this tracks_ | _Show the exact formula or notebook reference_ |
-| _e.g. Repeat Purchase Rate_ | _What business outcome this tracks_ | _Show the exact formula or notebook reference_ |
+| KPI | Formula |
+|---|---|
+| Total NEA Count | `COUNT(spk_id)` in nea_catalogue_clean |
+| PHA Count | `COUNT WHERE is_potentially_hazardous = True` |
+| Critical PHA Count | `COUNT WHERE risk_tier = 'Critical'` |
+| Median MOID (All) | `MEDIAN(min_orbit_intersection_dist_au)` |
+| Future Close Approaches | `COUNT` in close_approaches_future_clean |
+| Very Close Approaches (<10 LD) | `COUNT WHERE is_very_close_approach = True` |
+| Median Approach Velocity | `MEDIAN(velocity_km_s)` |
 
-Document KPI logic clearly in `notebooks/04_statistical_analysis.ipynb` and `notebooks/05_final_load_prep.ipynb`.
+---
+
+## Key Insights
+
+1. **2,539 of 41,150 NEAs (6.2%) are Potentially Hazardous** — a small but critical subset.
+2. **Apollo-class asteroids dominate the PHA pool** — most common hazardous orbit class.
+3. **MOID is the strongest predictor of hazard** — Mann-Whitney U confirms p < 0.001 separation between PHAs and non-PHAs.
+4. **PHAs are systematically larger** — significantly lower H magnitude than general NEA population (p < 0.001).
+5. **Median close approach velocity ≈ 12–14 km/s** — catastrophic for objects > 140m diameter.
+6. **3,888 close approaches predicted 2025–2035** — consistent historical tracking rate.
+7. **Very close approaches (< 10 LD) warrant dedicated radar** — disproportionate risk fraction.
+8. **Diameter data missing for 80%+ of small NEAs** — H magnitude is the only size proxy available.
+9. **Orbit solutions are well-constrained for large/named objects** — condition code 0 dominates.
+10. **Long observation arcs (50+ years) improve impact probability estimates** for known large NEAs.
+
+---
+
+## Recommendations
+
+| # | Recommendation | Expected Impact |
+|---|---|---|
+| 1 | Prioritize radar time for all Critical-tier PHAs (MOID < 0.01 AU) | Reduces impact uncertainty windows |
+| 2 | Fund space-based IR surveys (NEO Surveyor) for small-NEA physical characterisation | Enables accurate threat assessment for 80% uncatalogued objects |
+| 3 | Implement automated 10 LD alert triggers in tracking systems | Faster response for emergency observation campaigns |
+| 4 | Focus deflection planning on Apollo-class PHA population | Maximises kinetic impactor mission ROI |
 
 ---
 
@@ -113,193 +112,101 @@ Document KPI logic clearly in `notebooks/04_statistical_analysis.ipynb` and `not
 
 | Item | Details |
 |---|---|
-| **Dashboard URL** | _Paste Tableau Public link here_ |
-| **Executive View** | _Describe the high-level KPI summary view_ |
-| **Operational View** | _Describe the detailed drill-down view_ |
-| **Main Filters** | _List the interactive filters used_ |
+| **Dashboard URL** | `[PASTE TABLEAU PUBLIC URL HERE]` |
+| **Executive View** | KPI banner · Risk Tier bars · Orbit Class treemap |
+| **Operational View** | MOID histogram · Eccentricity scatter · Annual timeline · Future approach scatter |
+| **Filters** | Risk Tier · Orbit Class · Size Category · Approach Year · Speed Category |
 
-Store dashboard screenshots in [`tableau/screenshots/`](tableau/screenshots/) and document the public links in [`tableau/dashboard_links.md`](tableau/dashboard_links.md).
-
----
-
-## Key Insights
-
-_List 8-12 major findings from the analysis, written in decision language. Each insight should tell the reader what to think or act upon, not merely describe a chart._
-
-1. _Insight 1_
-2. _Insight 2_
-3. _Insight 3_
-4. _Insight 4_
-5. _Insight 5_
-6. _Insight 6_
-7. _Insight 7_
-8. _Insight 8_
-
----
-
-## Recommendations
-
-_Provide 3-5 specific, actionable business recommendations, each linked directly to an insight above._
-
-| # | Insight | Recommendation | Expected Impact |
-|---|---|---|---|
-| 1 | _Which insight does this address?_ | _What should the stakeholder do?_ | _What measurable impact do you expect?_ |
-| 2 | _Which insight does this address?_ | _What should the stakeholder do?_ | _What measurable impact do you expect?_ |
-| 3 | _Which insight does this address?_ | _What should the stakeholder do?_ | _What measurable impact do you expect?_ |
+Screenshots → [`tableau/screenshots/`](tableau/screenshots/)
+Build guide → [`tableau/tableau_4_dashboards_guide.md`](tableau/tableau_4_dashboards_guide.md)
 
 ---
 
 ## Repository Structure
 
 ```text
-SectionName_TeamID_ProjectName/
-|
-|-- README.md
-|
-|-- data/
-|   |-- raw/                         # Original dataset (never edited)
-|   `-- processed/                   # Cleaned output from ETL pipeline
-|
-|-- notebooks/
-|   |-- 01_extraction.ipynb
-|   |-- 02_cleaning.ipynb
-|   |-- 03_eda.ipynb
-|   |-- 04_statistical_analysis.ipynb
-|   `-- 05_final_load_prep.ipynb
-|
-|-- scripts/
-|   `-- etl_pipeline.py
-|
-|-- tableau/
-|   |-- screenshots/
-|   `-- dashboard_links.md
-|
-|-- reports/
-|   |-- README.md
-|   |-- project_report_template.md
-|   `-- presentation_outline.md
-|
-|-- docs/
-|   `-- data_dictionary.md
-|
-|-- DVA-oriented-Resume/
-`-- DVA-focused-Portfolio/
+SectionC_G-09_NASA-Planetary-Defense/
+├── README.md
+├── data/
+│   ├── raw/                              # Original datasets (never edited)
+│   └── processed/                        # 2 cleaned pipeline outputs
+│       ├── nea_catalogue_clean.csv       (41,150 rows · 33 cols)
+│       └── close_approaches_clean.csv    (27,430 rows · 19 cols)
+├── notebooks/
+│   ├── 01_extraction.ipynb              ← Raw audit, rename preview
+│   ├── 02_cleaning.ipynb               ← ETL, 4-dataset export
+│   ├── 03_eda.ipynb                    ← 8 visual sections
+│   ├── 04_statistical_analysis.ipynb   ← Correlations, Mann-Whitney
+│   └── 05_final_load_prep.ipynb        ← Tableau validation
+├── scripts/
+│   ├── 01_extraction.py        ← Rename maps + loaders
+│   ├── 02_cleaning.py          ← Dataset cleaning logic
+│   └── 05_final_load_prep.py   ← CLI orchestrator (pipeline runner)
+├── tableau/
+│   ├── screenshots/
+│   ├── dashboard_links.md
+│   └── tableau_4_dashboards_guide.md
+├── streamlit/
+│   └── app.py                          ← Interactive dashboard code
+├── reports/
+│   ├── project_report.md
+│   └── presentation_outline.md
+├── docs/
+│   └── data_dictionary.md
+├── DVA-oriented-Resume/
+└── DVA-focused-Portfolio/
 ```
 
----
+**Run the pipeline:**
+```bash
+python scripts/05_final_load_prep.py
+# Outputs 2 CSVs to data/processed/
+```
 
-## Analytical Pipeline
-
-The project follows a structured 7-step workflow:
-
-1. **Define** - Sector selected, problem statement scoped, mentor approval obtained.
-2. **Extract** - Raw dataset sourced and committed to `data/raw/`; data dictionary drafted.
-3. **Clean and Transform** - Cleaning pipeline built in `notebooks/02_cleaning.ipynb` and optionally `scripts/etl_pipeline.py`.
-4. **Analyze** - EDA and statistical analysis performed in notebooks `03` and `04`.
-5. **Visualize** - Interactive Tableau dashboard built and published on Tableau Public.
-6. **Recommend** - 3-5 data-backed business recommendations delivered.
-7. **Report** - Final project report and presentation deck completed and exported to PDF in `reports/`.
+**Run the Streamlit Dashboard:**
+```bash
+pip install streamlit plotly
+streamlit run streamlit/app.py
+```
 
 ---
 
 ## Tech Stack
 
-| Tool | Status | Purpose |
-|---|---|---|
-| Python + Jupyter Notebooks | Mandatory | ETL, cleaning, analysis, and KPI computation |
-| Google Colab | Supported | Cloud notebook execution environment |
-| Tableau Public | Mandatory | Dashboard design, publishing, and sharing |
-| GitHub | Mandatory | Version control, collaboration, contribution audit |
-| SQL | Optional | Initial data extraction only, if documented |
-
-**Recommended Python libraries:** `pandas`, `numpy`, `matplotlib`, `seaborn`, `scipy`, `statsmodels`
-
----
-
-## Evaluation Rubric
-
-| Area | Marks | Focus |
-|---|---|---|
-| Problem Framing | 10 | Is the business question clear and well-scoped? |
-| Data Quality and ETL | 15 | Is the cleaning pipeline thorough and documented? |
-| Analysis Depth | 25 | Are statistical methods applied correctly with insight? |
-| Dashboard and Visualization | 20 | Is the Tableau dashboard interactive and decision-relevant? |
-| Business Recommendations | 20 | Are insights actionable and well-reasoned? |
-| Storytelling and Clarity | 10 | Is the presentation professional and coherent? |
-| **Total** | **100** | |
-
-> Marks are awarded for analytical thinking and decision relevance, not chart quantity, visual decoration, or code length.
-
----
-
-## Submission Checklist
-
-**GitHub Repository**
-
-- [ ] Public repository created with the correct naming convention (`SectionName_TeamID_ProjectName`)
-- [ ] All notebooks committed in `.ipynb` format
-- [ ] `data/raw/` contains the original, unedited dataset
-- [ ] `data/processed/` contains the cleaned pipeline output
-- [ ] `tableau/screenshots/` contains dashboard screenshots
-- [ ] `tableau/dashboard_links.md` contains the Tableau Public URL
-- [ ] `docs/data_dictionary.md` is complete
-- [ ] `README.md` explains the project, dataset, and team
-- [ ] All members have visible commits and pull requests
-
-**Tableau Dashboard**
-
-- [ ] Published on Tableau Public and accessible via public URL
-- [ ] At least one interactive filter included
-- [ ] Dashboard directly addresses the business problem
-
-**Project Report**
-
-- [ ] Final report exported as PDF into `reports/`
-- [ ] Cover page, executive summary, sector context, problem statement
-- [ ] Data description, cleaning methodology, KPI framework
-- [ ] EDA with written insights, statistical analysis results
-- [ ] Dashboard screenshots and explanation
-- [ ] 8-12 key insights in decision language
-- [ ] 3-5 actionable recommendations with impact estimates
-- [ ] Contribution matrix matches GitHub history
-
-**Presentation Deck**
-
-- [ ] Final presentation exported as PDF into `reports/`
-- [ ] Title slide through recommendations, impact, limitations, and next steps
-
-**Individual Assets**
-
-- [ ] DVA-oriented resume updated to include this capstone
-- [ ] Portfolio link or project case study added
+| Tool | Purpose |
+|---|---|
+| Python 3.12 + Jupyter | ETL, EDA, statistical analysis |
+| pandas · numpy · matplotlib · seaborn · scipy | Core libraries |
+| Streamlit · Plotly | Interactive web application |
+| Tableau Public | 4 Interactive dashboards |
+| GitHub | Version control + contribution audit |
 
 ---
 
 ## Contribution Matrix
 
-This table must match evidence in GitHub Insights, PR history, and committed files.
-
-| Team Member | Dataset and Sourcing | ETL and Cleaning | EDA and Analysis | Statistical Analysis | Tableau Dashboard | Report Writing | PPT and Viva |
-|---|---|---|---|---|---|---|---|
-| _Member 1_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ |
-| _Member 2_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ |
-| _Member 3_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ |
-| _Member 4_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ |
-| _Member 5_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ |
-| _Member 6_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ | _Owner / support_ |
-
-_Declaration: We confirm that the above contribution details are accurate and verifiable through GitHub Insights, PR history, and submitted artifacts._
-
-**Team Lead Name:** _____________________________
-
-**Date:** _______________
+| Team Member | Data & ETL | EDA | Stats | Tableau | Report | PPT |
+|---|---|---|---|---|---|---|
+| Aditya Rana | Owner | Support | Support | Support | Support | Support |
+| Aanya Mehrotra | Support | Owner | Support | Support | Support | Support |
+| Pihu Jaitly | Support | Support | Support | Owner | Support | Owner |
+| Harshil | Support | Support | Owner | Support | Owner | Support |
 
 ---
 
-## Academic Integrity
+## Submission Checklist
 
-All analysis, code, and recommendations in this repository must be the original work of the team listed above. Free-riding is tracked via GitHub Insights and pull request history. Any mismatch between the contribution matrix and actual commit history may result in individual grade adjustments.
+- [x] Notebooks `01–05` committed
+- [x] `data/raw/` — original datasets
+- [x] `data/processed/` — 2 cleaned CSVs
+- [x] `docs/data_dictionary.md` — complete
+- [x] `scripts/01_extraction.py` — rename maps + loaders
+- [ ] `tableau/screenshots/` — add after publishing
+- [ ] `tableau/dashboard_links.md` — add Tableau Public URL
+- [ ] All members: visible commits and PRs
+- [ ] `reports/project_report.pdf` — export from `project_report.md`
+- [ ] `reports/presentation.pdf` — export from `.pptx`
 
 ---
 
-*Newton School of Technology - Data Visualization & Analytics | Capstone 2*
+*Newton School of Technology · DVA Capstone 2 · SectionC_G-09*
