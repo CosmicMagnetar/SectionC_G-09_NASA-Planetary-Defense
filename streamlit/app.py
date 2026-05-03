@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
+import plotly.graph_objects as go
 from pathlib import Path
 
 # Set Plotly dark theme globally (avoids per-chart template bug in Plotly 5.22)
@@ -228,18 +229,26 @@ if not nea_df.empty and not close_df.empty:
                 'Low': '#2ca02c'
             }
             
-            fig_risk = px.bar(
-                risk_counts, 
-                x='Count', 
-                y='Risk Tier', 
-                orientation='h',
-                color='Risk Tier',
-                color_discrete_map=color_map,
-                category_orders={"Risk Tier": ["Critical", "High", "Moderate", "Low"]},
+            # Build a single-trace horizontal bar with explicit colors and borders
+            ordered = ["Critical", "High", "Moderate", "Low"]
+            counts_map = {r: 0.0 for r in ordered}
+            for _, row in risk_counts.iterrows():
+                counts_map[row['Risk Tier']] = float(row['Count'])
 
-            )
+            y_vals = [r for r in ordered]
+            x_vals = [counts_map[r] for r in y_vals]
+
+            fig_risk = go.Figure(go.Bar(
+                x=x_vals,
+                y=y_vals,
+                orientation='h',
+                marker=dict(color=[color_map.get(r, '#888') for r in y_vals], line=dict(color='#000000', width=1.5)),
+            ))
             fig_risk.update_layout(showlegend=False, margin=dict(l=0, r=0, t=30, b=0), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig_risk, use_container_width=True)
+            fig_risk.update_layout(height=320)
+            st.plotly_chart(fig_risk, use_container_width=True, config={"responsive": True})
+            with st.expander("Risk counts (table)"):
+                st.dataframe(risk_counts, use_container_width=True, hide_index=True)
             
         with col_chart2:
             st.subheader("Orbit Class Breakdown")
@@ -247,17 +256,19 @@ if not nea_df.empty and not close_df.empty:
             class_counts.columns = ['Orbit Class', 'Count']
             class_counts['Count'] = class_counts['Count'].astype(float)
             
-            fig_class = px.pie(
-                class_counts, 
-                values='Count', 
-                names='Orbit Class',
+            # Use graph_objects Pie for more consistent rendering in previews
+            fig_class = go.Figure(go.Pie(
+                labels=class_counts['Orbit Class'],
+                values=class_counts['Count'],
                 hole=0.5,
-
-            )
-            # Removed text labels to prevent cluttering; relying on hover tooltips instead
+                marker=dict(line=dict(color='#000000', width=1)),
+                sort=False
+            ))
             fig_class.update_traces(textinfo='none')
-            fig_class.update_layout(margin=dict(l=0, r=0, t=30, b=0), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig_class, use_container_width=True)
+            fig_class.update_layout(margin=dict(l=0, r=0, t=30, b=0), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", height=320)
+            st.plotly_chart(fig_class, use_container_width=True, config={"responsive": True})
+            with st.expander("Orbit class counts (table)"):
+                st.dataframe(class_counts, use_container_width=True, hide_index=True)
             
     with tab2:
         st.header("Orbital Mechanics Analysis")
@@ -273,19 +284,23 @@ if not nea_df.empty and not close_df.empty:
         if not moid_viz.empty:
             # Convert bool to string for coloring
             moid_viz['is_pha_str'] = moid_viz['is_potentially_hazardous'].astype(str)
-            
-            fig_moid = px.histogram(
-                moid_viz, 
-                x=moid_col,
-                color='is_pha_str',
-                nbins=100,
-                color_discrete_map={'True': '#d62728', 'False': '#1f77b4'},
-                labels={moid_col: 'MOID (AU)', 'is_pha_str': 'Is PHA'},
+            # Build two histogram traces (PHA vs non-PHA) for reliable preview rendering
+            pha_true = moid_viz[moid_viz['is_pha_str'] == 'True'][moid_col]
+            pha_false = moid_viz[moid_viz['is_pha_str'] == 'False'][moid_col]
 
-            )
-            fig_moid.add_vline(x=0.05, line_dash="dash", line_color="orange", annotation_text="PHA Threshold (0.05 AU)")
-            fig_moid.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig_moid, use_container_width=True)
+            fig_moid = go.Figure()
+            if len(pha_false) > 0:
+                fig_moid.add_trace(go.Histogram(x=pha_false, name='Not PHA', nbinsx=100, marker_color='#1f77b4', opacity=0.75))
+            if len(pha_true) > 0:
+                fig_moid.add_trace(go.Histogram(x=pha_true, name='PHA', nbinsx=100, marker_color='#d62728', opacity=0.75))
+
+            fig_moid.update_layout(barmode='overlay', xaxis_title='MOID (AU)', yaxis_title='Count', margin=dict(l=0, r=0, t=30, b=0))
+            # Add vertical line as a shape
+            fig_moid.add_shape(type='line', x0=0.05, x1=0.05, y0=0, y1=1, xref='x', yref='paper', line=dict(color='orange', dash='dash'))
+            fig_moid.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", height=360)
+            st.plotly_chart(fig_moid, use_container_width=True, config={"responsive": True})
+            with st.expander("MOID sample (table)"):
+                st.dataframe(moid_viz.head(10)[[moid_col, 'is_potentially_hazardous', 'full_name']], use_container_width=True, hide_index=True)
         else:
             st.info("No MOID data available for current filter selection.")
         
@@ -300,27 +315,29 @@ if not nea_df.empty and not close_df.empty:
             # Sample data to prevent browser crash if huge (reduced for Cloud memory)
             scatter_viz = scatter_valid.sample(min(len(scatter_valid), 2000), random_state=42).copy()
             scatter_viz['is_pha_str'] = scatter_viz['is_potentially_hazardous'].astype(str)
-            
-            # Invert absolute magnitude (H) to compute a display size metric. 
-            # Lower H means larger physical size.
-            scatter_viz['display_size'] = (30 - scatter_viz['absolute_magnitude_h']).clip(lower=1)
-            
-            fig_scatter = px.scatter(
-                scatter_viz,
-                x='semi_major_axis_au',
-                y='orbital_eccentricity',
-                color='is_pha_str',
-                size='display_size',
-                hover_name='full_name',
-                hover_data={'display_size': False, 'absolute_magnitude_h': True, 'risk_tier': True, moid_col: True},
-                color_discrete_map={'True': '#d62728', 'False': '#00d2ff'},
-                labels={'semi_major_axis_au': 'Semi-Major Axis (AU)', 'orbital_eccentricity': 'Eccentricity'},
-                range_x=[0, 4],
 
-            )
-            fig_scatter.add_vline(x=1.0, line_dash="dash", line_color="green", annotation_text="Earth Orbit (1 AU)")
-            fig_scatter.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig_scatter, use_container_width=True)
+            # Invert absolute magnitude (H) to compute a display size metric. Lower H => larger size
+            scatter_viz['display_size'] = (30 - scatter_viz['absolute_magnitude_h']).clip(lower=1)
+
+            # Build graph_objects scatter traces per PHA flag for consistent rendering
+            fig_scatter = go.Figure()
+            for pha_flag, color in [('True', '#d62728'), ('False', '#00d2ff')]:
+                sub = scatter_viz[scatter_viz['is_pha_str'] == pha_flag]
+                if len(sub) == 0:
+                    continue
+                fig_scatter.add_trace(go.Scatter(
+                    x=sub['semi_major_axis_au'], y=sub['orbital_eccentricity'], mode='markers',
+                    marker=dict(size=(sub['display_size']), color=color, line=dict(width=0.5, color='#000')),
+                    name=f'PHA={pha_flag}',
+                    text=sub['full_name']
+                ))
+
+            fig_scatter.add_shape(type='line', x0=1.0, x1=1.0, y0=0, y1=1, xref='x', yref='paper', line=dict(color='green', dash='dash'))
+            fig_scatter.update_layout(xaxis_title='Semi-Major Axis (AU)', yaxis_title='Eccentricity', plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
+            fig_scatter.update_layout(height=520)
+            st.plotly_chart(fig_scatter, use_container_width=True, config={"responsive": True})
+            with st.expander("Scatter source sample (table)"):
+                st.dataframe(scatter_viz.head(10)[['full_name','semi_major_axis_au','orbital_eccentricity','absolute_magnitude_h']], use_container_width=True, hide_index=True)
         else:
             st.info("No orbital data available for current filter selection.")
         
@@ -331,17 +348,14 @@ if not nea_df.empty and not close_df.empty:
         yearly_counts = close_df.groupby('approach_year').size().reset_index(name='count')
         yearly_counts['count'] = yearly_counts['count'].astype(float)
         
-        fig_timeline = px.line(
-            yearly_counts, 
-            x='approach_year', 
-            y='count',
-            markers=True,
-            labels={'approach_year': 'Year', 'count': 'Number of Close Approaches'},
-
-        )
+        # Use a single-trace Scatter so rendering is consistent in preview
+        fig_timeline = go.Figure(go.Scatter(x=yearly_counts['approach_year'], y=yearly_counts['count'], mode='lines+markers', line=dict(color='#00d2ff')))
         fig_timeline.add_vline(x=2025, line_dash="dash", line_color="red", annotation_text="Present (2025)")
         fig_timeline.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_timeline, use_container_width=True)
+        fig_timeline.update_layout(height=300)
+        st.plotly_chart(fig_timeline, use_container_width=True, config={"responsive": True})
+        with st.expander("Yearly counts (table)"):
+            st.dataframe(yearly_counts, use_container_width=True, hide_index=True)
         
         st.divider()
         
@@ -356,18 +370,20 @@ if not nea_df.empty and not close_df.empty:
             'Slow (<5 km/s)': '#00d2ff'
         }
         
-        fig_vel = px.histogram(
-            close_df,
-            x='velocity_km_s',
-            color='speed_category',
-            nbins=50,
-            labels={'velocity_km_s': 'Velocity (km/s)', 'speed_category': 'Speed Category'},
+        # Build velocity histogram with separate traces per category for preview compatibility
+        vel_df = close_df.dropna(subset=['velocity_km_s','speed_category'])
+        fig_vel = go.Figure()
+        for cat, color in speed_color_map.items():
+            sub = vel_df[vel_df['speed_category'] == cat]['velocity_km_s']
+            if len(sub) == 0:
+                continue
+            fig_vel.add_trace(go.Histogram(x=sub, name=cat, marker_color=color, opacity=0.75, nbinsx=50))
 
-            color_discrete_map=speed_color_map,
-            category_orders={'speed_category': ['Slow (<5 km/s)', 'Moderate (5–15 km/s)', 'Fast (15–30 km/s)', 'Very Fast (>30 km/s)']}
-        )
-        fig_vel.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_vel, use_container_width=True)
+        fig_vel.update_layout(barmode='overlay', xaxis_title='Velocity (km/s)', yaxis_title='Count', plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
+        fig_vel.update_layout(height=360)
+        st.plotly_chart(fig_vel, use_container_width=True, config={"responsive": True})
+        with st.expander("Velocity sample (table)"):
+            st.dataframe(close_df[['velocity_km_s','speed_category']].dropna().head(20), use_container_width=True, hide_index=True)
         
         # Top upcoming approaches
         st.subheader("Top Upcoming Close Approaches (Next 100)")
