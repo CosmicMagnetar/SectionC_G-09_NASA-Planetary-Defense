@@ -56,7 +56,7 @@ def load_data():
 
     if base_path is None:
         st.error("Data folder not found. Run the ETL pipeline or place data under `data/processed`.")
-        return pd.DataFrame(), pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame(), None
 
     try:
         nea_df = pd.read_csv(base_path / "nea_catalogue_clean.csv", low_memory=False)
@@ -91,17 +91,41 @@ def load_data():
         if 'is_potentially_hazardous' in nea_df.columns:
             nea_df['is_potentially_hazardous'] = nea_df['is_potentially_hazardous'].astype(str)
 
-        return nea_df, close_df
+        return nea_df, close_df, base_path
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        return pd.DataFrame(), pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame(), None
 
-nea_df, close_df = load_data()
+nea_df, close_df, data_path = load_data()
 
 # Allow manual cache refresh if Streamlit is holding an old empty cache
 if st.sidebar.button("Reload data (clear cache)"):
     st.cache_data.clear()
     st.experimental_rerun()
+
+# Debug panel: show path, shapes, and presence of expected columns
+with st.sidebar.expander("Data diagnostics", expanded=False):
+    st.write("Data path:", str(data_path) if data_path is not None else "Not found")
+    st.write("NEA rows:", len(nea_df))
+    st.write("Close approach rows:", len(close_df))
+
+    expected_cols = [
+        'risk_tier', 'orbit_class_label', 'min_orbit_intersection_dist_au',
+        'semi_major_axis_au', 'orbital_eccentricity', 'absolute_magnitude_h',
+        'approach_year', 'velocity_km_s', 'speed_category', 'close_approach_date',
+        'distance_lunar_distances'
+    ]
+    missing = []
+    present = []
+    for c in expected_cols:
+        if c in nea_df.columns or c in close_df.columns:
+            present.append(c)
+        else:
+            missing.append(c)
+
+    st.write("Present columns (sample):", present[:8])
+    if missing:
+        st.warning(f"Missing expected columns: {', '.join(missing)}")
 
 # App layout
 st.title("☄️ NASA Planetary Defense Dashboard")
@@ -125,6 +149,47 @@ if not nea_df.empty and not close_df.empty:
         filtered_nea = filtered_nea[filtered_nea['orbit_class_label'] == selected_class]
     if selected_risk != "All":
         filtered_nea = filtered_nea[filtered_nea['risk_tier'] == selected_risk]
+
+    # Chart input diagnostics (shows what each chart will receive)
+    with st.sidebar.expander("Chart inputs (debug)", expanded=False):
+        st.write("Filtered NEA rows:", len(filtered_nea))
+        try:
+            rc = filtered_nea['risk_tier'].value_counts().reset_index()
+            rc.columns = ['Risk Tier', 'Count']
+            st.write("Risk counts:")
+            st.dataframe(rc.head(10), use_container_width=True)
+        except Exception as e:
+            st.write("Risk counts error:", e)
+
+        try:
+            cc = filtered_nea['orbit_class_label'].value_counts().reset_index()
+            cc.columns = ['Orbit Class', 'Count']
+            st.write("Orbit class counts:")
+            st.dataframe(cc.head(10), use_container_width=True)
+        except Exception as e:
+            st.write("Orbit class counts error:", e)
+
+        moid_col = 'min_orbit_intersection_dist_au'
+        try:
+            moid_viz_samp = filtered_nea[filtered_nea[moid_col].notna() & (filtered_nea[moid_col] <= 1.0)].head(10)
+            st.write(f"MOID sample rows (<=1 AU): {len(filtered_nea[filtered_nea[moid_col].notna() & (filtered_nea[moid_col] <= 1.0)])}")
+            st.dataframe(moid_viz_samp[[moid_col, 'is_potentially_hazardous', 'full_name']].head(10), use_container_width=True)
+        except Exception as e:
+            st.write("MOID sample error:", e)
+
+        try:
+            scatter_cols = ['semi_major_axis_au', 'orbital_eccentricity', 'absolute_magnitude_h']
+            scatter_valid = filtered_nea.dropna(subset=scatter_cols)
+            st.write("Scatter valid rows:", len(scatter_valid))
+        except Exception as e:
+            st.write("Scatter sample error:", e)
+
+        try:
+            yc = close_df.groupby('approach_year').size().reset_index(name='count')
+            st.write("Yearly counts sample:")
+            st.dataframe(yc.head(10), use_container_width=True)
+        except Exception as e:
+            st.write("Yearly counts error:", e)
         
     # Tabs
     tab1, tab2, tab3 = st.tabs(["📊 Overview & KPIs", "🪐 Orbital Analysis", "⏱️ Close Approaches"])
