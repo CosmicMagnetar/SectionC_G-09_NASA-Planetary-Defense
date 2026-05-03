@@ -102,7 +102,7 @@ nea_df, close_df, data_path = load_data()
 # Allow manual cache refresh if Streamlit is holding an old empty cache
 if st.sidebar.button("Reload data (clear cache)"):
     st.cache_data.clear()
-    st.experimental_rerun()
+    st.rerun()
 
 # Debug panel: show path, shapes, and presence of expected columns
 with st.sidebar.expander("Data diagnostics", expanded=False):
