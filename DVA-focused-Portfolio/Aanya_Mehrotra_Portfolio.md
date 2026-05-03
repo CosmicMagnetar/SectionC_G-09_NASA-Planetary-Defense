@@ -5,7 +5,7 @@
 **Role:** Data Lead · Exploratory Data Analysis
 **Live Dashboard:** [Tableau Public](https://tableaupublic.com) _(paste URL)_
 **Repository:** [GitHub](https://github.com) _(paste URL)_
-
+**Portfolio:** [https://dva-portfolio-seven.vercel.app/](https://dva-portfolio-seven.vercel.app/)
 ---
 
 ## Problem Statement
