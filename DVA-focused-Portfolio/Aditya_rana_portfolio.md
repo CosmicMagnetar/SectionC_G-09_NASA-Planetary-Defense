@@ -5,7 +5,7 @@
 **Role:** Project Lead · ETL Pipeline Architect
 **Live Dashboard:** [Tableau Public](https://tableaupublic.com) _(paste URL)_
 **Repository:** [GitHub](https://github.com) _(paste URL)_
-**Portfolio:** https://dva-portfolio-inky-beta.vercel.app/
+**Portfolio:** [https://dva-portfolio-inky-beta.vercel.app/](https://dva-portfolio-inky-beta.vercel.app/)
 
 ---
 
