@@ -288,9 +288,10 @@ A Streamlit dashboard is also provided via `streamlit/app.py`.
 
 | Team Member | Data & ETL | EDA | Stats | Tableau | Report | PPT |
 |---|---|---|---|---|---|---|
-| Aditya Rana | Owner | Support | Support | Support | Support | Support |
+| Krishna | Owner | Support | Support | Support | Support | Support |
+| Aditya Rana | Support | Support | Support | Owner | Support | Support |
 | Aanya Mehrotra | Support | Owner | Support | Support | Support | Support |
-| Pihu Jaitly | Support | Support | Support | Owner | Support | Owner |
+| Pihu Jaitly | Support | Support | Support | Support | Support | Owner |
 | Harshil | Support | Support | Owner | Support | Owner | Support |
 
 _We confirm that the above contribution details are accurate and verifiable through GitHub Insights, PR history, and submitted artifacts._
