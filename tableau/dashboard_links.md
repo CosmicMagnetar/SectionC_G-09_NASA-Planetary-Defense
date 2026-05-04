@@ -8,9 +8,9 @@
 
 | Item | Link | Notes |
 |---|---|---|
-| **Tableau Public Dashboard** | `[PASTE TABLEAU PUBLIC URL HERE]` | **Main submission link** |
+| **Tableau Public Dashboard** | `https://public.tableau.com/app/profile/krishna.8732/viz/capstone_17778371929020/Story1` | **Main submission link** |
 | Workbook / Story Link | `[Optional — paste if using Tableau Story]` | Optional |
-| Demo Recording | `[Optional — paste Loom/YouTube link]` | Optional |
+
 
 ---
 
