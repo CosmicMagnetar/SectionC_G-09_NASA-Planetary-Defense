@@ -13,7 +13,7 @@
 | **Sector** | Space & Planetary Science / Public Safety |
 | **Team ID** | SectionC_G-09 |
 | **Section** | Section C |
-| **Faculty Mentor** | _[Faculty Mentor Name]_ |
+| **Faculty Mentor** | _Archit Raj_ |
 | **Institute** | Newton School of Technology |
 | **Submission Date** | _[Submission Date]_ |
 
@@ -21,7 +21,8 @@
 
 | Role | Name | GitHub Username |
 |---|---|---|
-| Project Lead / ETL Lead | Aditya Rana | `@A1B2C3D4E5F6G7H8I9J0164-hack` |
+| Project Lead  | Krishna | `@CosmicMagnetar` |
+| ETL Lead / Tableau | Aditya Rana | `@A1B2C3D4E5F6G7H8I9J0164-hack` |
 | Data Lead / EDA | Aanya Mehrotra | `@[github-handle]` |
 | Visualization Lead | Pihu Jaitly | `@[github-handle]` |
 | Statistical Analysis / Report | Harshil | `@[github-handle]` |
@@ -187,9 +188,10 @@ streamlit run streamlit/app.py
 
 | Team Member | Data & ETL | EDA | Stats | Tableau | Report | PPT |
 |---|---|---|---|---|---|---|
-| Aditya Rana | Owner | Support | Support | Support | Support | Support |
+| Krishna | Owner | Support | Support | Owner | Support | Support |
+| Aditya Rana | Support | Support | Support | Owner | Support | Support |
 | Aanya Mehrotra | Support | Owner | Support | Support | Support | Support |
-| Pihu Jaitly | Support | Support | Support | Owner | Support | Owner |
+| Pihu Jaitly | Support | Support | Support | Support | Support | Owner |
 | Harshil | Support | Support | Owner | Support | Owner | Support |
 
 ---
