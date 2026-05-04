@@ -23,9 +23,9 @@
 |---|---|---|
 | Project Lead  | Krishna | `@CosmicMagnetar` |
 | ETL Lead / Tableau | Aditya Rana | `@A1B2C3D4E5F6G7H8I9J0164-hack` |
-| Data Lead / EDA | Aanya Mehrotra | `@[github-handle]` |
-| Visualization Lead | Pihu Jaitly | `@[github-handle]` |
-| Statistical Analysis / Report | Harshil | `@[github-handle]` |
+| Data Lead / EDA | Aanya Mehrotra | `@aanyamehrotra` |
+| Visualization Lead | Pihu Jaitly | `@Pihujaitly567` |
+| Statistical Analysis / Report | Harshil | `@harshilv17` |
 
 ---
 
